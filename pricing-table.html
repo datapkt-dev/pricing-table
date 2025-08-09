@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pricing Comparison – Dark Clean (Unified Icons)</title>
+  <style>
+    :root{
+      --bg:#0b1320;
+      --paper:#0f1a2d;
+      --paper-2:#0c1526;
+      --ink:#e6ebf5;
+      --muted:#a3adc2;
+      --line:#1f2a40;
+      --accent:#f23d5e;
+      --ok:#eaf0ff;
+      --radius:16px;
+      --shadow:0 10px 34px rgba(0,0,0,.45);
+    }
+
+    *,*::before,*::after{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      background:var(--bg); color:var(--ink)
+    }
+    .wrap{ max-width:1200px; margin:auto; padding:32px 16px 64px }
+
+    .hero{ text-align:center; margin-bottom:18px }
+    .cycle{
+      display:inline-flex; gap:8px; background:var(--paper);
+      border:1px solid var(--line); border-radius:999px; padding:6px;
+      margin:8px auto 12px; box-shadow:var(--shadow)
+    }
+    .cycle input{ display:none }
+    .cycle label{ padding:8px 14px; border-radius:999px; color:var(--muted); cursor:pointer; font-weight:800 }
+    .cycle input:checked + label{ background:var(--accent); color:#fff }
+
+    .plans{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:18px 0 }
+    .card{
+      background:var(--paper); border:1px solid var(--line);
+      border-radius:var(--radius); padding:18px; text-align:center; box-shadow:var(--shadow)
+    }
+    .card .label{ font-size:12px; color:var(--muted); margin-bottom:4px }
+    .card h3{ margin:0 0 6px; font-size:18px }
+    .card p{ margin:0 0 12px; color:var(--muted); font-size:12px }
+    .price{ display:flex; justify-content:center; align-items:baseline; gap:6px; margin-bottom:12px }
+    .price b{ font-size:26px }
+    .price small{ color:var(--muted) }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 14px; border-radius:12px; border:1px solid var(--line);
+      background:#12203a; color:#e5edff; font-weight:800; cursor:pointer
+    }
+    .btn.primary{ background:var(--accent); color:#fff; border-color:transparent }
+    .card.popular{ outline:2px solid var(--accent); outline-offset:2px; position:relative }
+    /* .card.popular::after{
+      content:"最熱門"; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      background:var(--accent); color:#fff; font-weight:800; font-size:12px; padding:3px 10px; border-radius:999px
+    } */
+
+    /* Table */
+    .table-wrap{ background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:auto }
+    table{ width:100%; min-width:1000px; border-collapse:separate; border-spacing:0; table-layout:fixed; }
+    thead th{
+      position:sticky; top:0; z-index:3; background:var(--paper);
+      text-align:center; padding:16px; border-bottom:1px solid var(--line)
+    }
+    thead th:first-child{ text-align:left; }
+    tbody th.feature{
+      position:sticky; left:0; z-index:2; text-align:left; padding:12px 16px;
+      background:var(--paper); border-right:1px solid var(--line)
+    }
+    td{
+      padding:12px 16px; text-align:center; border-left:1px solid var(--line);
+      background:var(--paper); position:relative
+    }
+    tr:not(:last-child) td{ border-bottom:1px solid var(--line) }
+    tbody tr:nth-child(even) td{ background:var(--paper-2) }
+    tbody tr:nth-child(even) th.feature{ background:var(--paper-2) }
+
+    /* Section rows */
+    tr.section th{
+      background:#0b1a33; color:#c9d5ee; padding:14px 16px; text-align:left; font-size:14px;
+      border-top:1px solid var(--line); border-bottom:1px solid var(--line)
+    }
+    tr.section th .tag{
+      margin-left:8px; font-size:12px; padding:2px 8px; border-radius:999px;
+      background:#0a1830; color:#8ca0c9; border:1px solid var(--line)
+    }
+
+    /* Unified icon container => same box for check & dash */
+    .icon{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:22px; height:22px; margin:auto; border-radius:999px;
+    }
+    .icon--check{ border:1px solid var(--line) }
+    .icon--check svg{ width:14px; height:14px; color:var(--ok) }
+    .icon--dash{ border:1px solid transparent }         /* 保持同高同寬不位移 */
+    .icon--dash::before{ content:""; color:#b8c0d4; font-weight:700; line-height:1 }
+
+    .hint{ color:var(--muted); font-size:12px; margin:10px 2px 0 }
+
+    col.feature{ width:320px }
+    col.plan{ width:1fr }
+
+    @media (max-width:900px){ .plans{ grid-template-columns:1fr 1fr } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h2 style="margin:0">方案與功能比較</h2>
+      <div class="cycle">
+        <input type="radio" id="m" name="cycle" checked><label for="m">月費</label>
+        <input type="radio" id="y" name="cycle"><label for="y">年費（省 20%）</label>
+      </div>
+    </div>
+
+    <!-- Plan cards -->
+    <section class="plans" aria-label="方案卡片">
+      <article class="card">
+        <div class="label">入門起步</div><h3>基礎方案</h3><p>30 物件上限</p>
+        <div class="price"><b data-m="$3000" data-y="$2400">$3000</b><small> / 月</small></div>
+        <button class="btn">選擇方案</button>
+      </article>
+      <article class="card popular">
+        <div class="label">最受歡迎</div><h3>熱門方案</h3><p>100 物件上限</p>
+        <div class="price"><b data-m="$5000" data-y="$4000">$5000</b><small> / 月</small></div>
+        <button class="btn primary">選擇方案</button>
+      </article>
+      <article class="card">
+        <div class="label">成長團隊</div><h3>進階方案</h3><p>200 物件上限</p>
+        <div class="price"><b data-m="$8000" data-y="$6400">$8000</b><small> / 月</small></div>
+        <button class="btn">選擇方案</button>
+      </article>
+      <article class="card">
+        <div class="label">大型企業</div><h3>專業方案</h3><p>500 物件上限</p>
+        <div class="price"><b data-m="$12000" data-y="$9600">$12000</b><small> / 月</small></div>
+        <button class="btn">選擇方案</button>
+      </article>
+    </section>
+
+    <!-- Comparison table -->
+    <div class="table-wrap" role="region" aria-label="定價方案比較表" tabindex="0">
+      <table>
+        <colgroup>
+          <col class="feature">
+          <col class="plan"><col class="plan"><col class="plan"><col class="plan">
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th>基礎方案</th>
+            <th>熱門方案</th>
+            <th>進階方案</th>
+            <th>專業方案</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 物件管理 -->
+          <tr class="section"><th colspan="5">物件管理</th></tr>
+          <tr><th class="feature">可新增物件</th><td>30</td><td>100</td><td>200</td><td>500</td></tr>
+          <tr><th class="feature">物件新增、刪除、修改</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">物件基本數據</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">物件審核（主管）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!-- 租約管理 -->
+          <tr class="section"><th colspan="5">租約管理</th></tr>
+          <tr><th class="feature">雲端電子簽約（公版合約）</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">雲端電子簽約（客製化合約）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">合約審核流程（主管）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">合約審核流程（房東）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!-- 訊息管理 -->
+          <tr class="section"><th colspan="5">訊息管理</th></tr>
+          <tr><th class="feature">一鍵催繳訊息額度（次／月）</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+          <tr><th class="feature">自動發送帳單至簡訊（每月一次）</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">自動發送帳單至 LINE／WeChat</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!-- 帳單管理 -->
+          <tr class="section"><th colspan="5">帳單管理</th></tr>
+          <tr><th class="feature">即時財務報表</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">匯款後手動核對後五碼對帳</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">自動對帳（虛擬帳戶、信用卡）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!-- 人員及帳號管理 -->
+          <tr class="section"><th colspan="5">人員及帳號管理</th></tr>
+          <tr><th class="feature">新增、刪除、修改管理人員</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">管理人員權限管理</th>
+            <td><span class="icon icon--dash"></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">租客管理</th>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!-- 報修管理 -->
+          <tr class="section"><th colspan="5">報修管理</th></tr>
+          <tr><th class="feature">管理人員新增報修單</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">房客新增報修單</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">報修單審核流程（主管審核）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">報修單審核流程（房東審核）</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+
+          <!--聊天模組-->
+          <tr class="section"><th colspan="5">聊天模組</th></tr>
+          <tr><th class="feature">管理群聊天模組(管理員、房東)</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+          <tr><th class="feature">房客聊天模組</th>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--dash"></span></td>
+            <td><span class="icon icon--check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 月/年價切換（示意）
+    const monthly=document.getElementById('m');
+    const yearly=document.getElementById('y');
+    function updatePrices(){
+      document.querySelectorAll('b[data-m][data-y]').forEach(b=>{
+        b.textContent = (yearly && yearly.checked) ? b.getAttribute('data-y') : b.getAttribute('data-m');
+      });
+    }
+    if(monthly&&yearly){
+      monthly.addEventListener('change',updatePrices);
+      yearly.addEventListener('change',updatePrices);
+    }
+    updatePrices();
+  </script>
+</body>
+</html>
